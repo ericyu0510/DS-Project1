@@ -1,56 +1,62 @@
 #include <iostream>
 #include <fstream>
 
-typedef struct value {
+struct value {
 	int x, y, value;
 	bool check;
-}value;
+};
 
-typedef struct peak {
+struct peak {
 	int col, row;
-}peak;
+};
 
 class testcase {
 public:
-	void getsize(value*);
-	void store_num(int, value*);
+	std::fstream myfile;
+	testcase();
+	void getsize(std::fstream & myfile);
+	void store_num(int, std::fstream & myfile);
 	void peaktest(int);
 	int row = 1;
 	int peak_num = 0;
 	void set_peak(int, int);
 	value* array;
-	peak peak_list[10];
+	peak peak_list[10000];
 	int row_num, col_num;
 };
 
 int main(int argc, char * argv[]) {
+
 	std::fstream myfile("matrix.data", std::ios_base::in);
-
-
-	testcase* map;
-	map->getsize(map->array);
-	map->store_num(1, map->array);
-	for (int countrow = 2; countrow <= map->row_num; countrow++) {
-		map->store_num(countrow,map->array);
-		map->peaktest(countrow - 1);
+	testcase map;
+	map.getsize(myfile);
+	map.store_num(1, myfile);
+	for (int countrow = 2; countrow <= map.row_num; countrow++) {
+		map.store_num(countrow,myfile);
+		map.peaktest(countrow - 1);
 	}
-	map->peaktest(map->row_num);
+	map.peaktest(map.row_num);
 
 
 	return 0;
 }
 
-void testcase::getsize(value* array) {
-
-	//std::cin >> row_num >> col_num;
-	myfile >> row_num >> col_num;
-	array = new value[row_num*col_num];
+testcase::testcase():array(nullptr) {
+	
 }
 
-void testcase::store_num(int row, value* array) {
+void testcase::getsize(std::fstream & myfile) {
+
+	//std::cin >> row_num >> col_num;
+	delete[] array;
+	myfile >> row_num >> col_num;
+	array = new value[3*col_num];
+}
+
+void testcase::store_num(int row, std::fstream & myfile) {
 	if (row == 1 || row == 2 || row == 3) {
 		for (int count = 0; count < col_num; count++) {
-			/*std::cin*/ myfile >> (array + (row - 1)*col_num + count)->value;
+			myfile >> (array + (row - 1)*col_num + count)->value;
 			(array + (row - 1)*col_num + count)->check = true;
 			if (count > 0) {
 				if ((array + (row - 1)*col_num + count)->value >
@@ -74,7 +80,7 @@ void testcase::store_num(int row, value* array) {
 	}
 	else {
 		for (int count = 0; count < col_num; count++) {
-			/*std::cin*/myfile >> (array + ((row - 1) % 3) + count)->value;
+			myfile >> (array + ((row - 1) % 3) + count)->value;
 			(array + ((row - 1) % 3) + count)->check = true;
 			if (count > 1) {
 				if ((array + ((row - 1) % 3) + count)->value > (array + ((row - 1) % 3) + count - 1)->value) {
