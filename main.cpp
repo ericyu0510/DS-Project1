@@ -1,127 +1,129 @@
 #include <iostream>
+#include <fstream>
+#include <vector>
+#include <cstdlib>
+#include <string>
 
-typedef struct value {
+struct value {
 	int x, y, value;
 	bool check;
-}value;
-
-typedef struct peak {
-	int col, row;
-}peak;
-
-class test_case {
-public:
-	void getsize();
-	void store_num();
-	bool peaktest(int,int);
-	int row = 3, col = 0;
-	int peak_num = 0;
-	void set_peak(int,int);
-
-private:
-	int row_num, col_num;
-	value array[3][col_num];
-	peal[][]
-
 };
 
-int main() {
-	test_case::getsize();
-	for (int countrow = 3; countrow <= row_num; countrow++) {
-		test_case::store_num();
-		row++;
+struct peak {
+	int col, row;
+};
+
+class testcase {
+public:
+	std::ifstream input_file;
+	std::ofstream output_file;
+	testcase();
+	void getsize(std::ifstream & input);
+	void store_num(int, std::ifstream & input);
+	void peaktest(int);
+	int row = 1;
+	int peak_num = 0;
+	void set_peak(int, int);
+	value* array;
+	std::vector<peak> peak_list;
+	int row_num, col_num;
+};
+
+int main(int argc, char * argv[]) {
+
+	//std::fstream myfile("matrix1.data", std::ios_base::in);
+	std::ifstream input_file;
+	std::ofstream output_file;
+	input_file.open("./" + std::string(argv[1]) + "/matrix.data");
+	output_file.open("./" + std::string(argv[1]) + "/final.peak");
+
+	testcase map;
+	map.getsize(input_file);
+	map.store_num(1, input_file);
+	for (int countrow = 2; countrow <= map.row_num; countrow++) {
+		map.store_num(countrow, input_file);
+		map.peaktest(countrow - 1);
 	}
-	for (int countrow = 1; countrow < row_num- 1; countrow++) {
-		for (int countcol = 1; countcol < row_ num - 1; countcol++) {
-			if ((array + countrow * col_num + countcol)->check!=false){
-				if(test_case::peaktest(countrow, countcol)) {
-					test_case::set_peak(countrow, countcol);
-				}
-			}
-		}
+	map.peaktest(map.row_num);
+	output_file << map.peak_num << '\n';
+	for (int count = 0; count < map.peak_num; count++) {
+		output_file << map.peak_list[count].row << " " << map.peak_list[count].col << "\n";
 	}
-	
 	return 0;
 }
 
-void test_case::getsize() {
-	std::cin << row_num << col_num;
+testcase::testcase() :array(nullptr) {
+
 }
 
-void test_case::store_num() {
-	if (row = 3){
-		for (int count = 0; count < 3 * col_num; count++) {
-			switch (count%col_num) {
-			case 0:
-				std::cin << array->value;
-				array->check = true;
-				break;
-			case col_num-1:
-				std::cin << (array+count)->value;
-				if ((array + count)->value > (array + count - 1)->value
-					&& (array + count - 1)->check = true) {
-					(array + count - 1)->check = false;
-					(array + count)->check = true;
+void testcase::getsize(std::ifstream & input_file) {
+
+	delete[] array;
+	input_file >> row_num >> col_num;
+	array = new value[3 * col_num];
+}
+
+void testcase::store_num(int row, std::ifstream & input_file) {
+	if (row == 1 || row == 2 || row == 3) {
+		for (int count = 0; count < col_num; count++) {
+			input_file >> (array + (row - 1)*col_num + count)->value;
+			(array + (row - 1)*col_num + count)->check = true;
+			if (count > 0) {
+				if ((array + (row - 1)*col_num + count)->value >
+					(array + (row - 1)*col_num + count - 1)->value) {
+					(array + (row - 1)*col_num + count - 1)->check = false;
 				}
-				break;
-			default:
-				std::cin << (array + count)->value;
-				if ((array + count)->value > (array + count - 1)->value
-					&& (array + count - 1)->check = true) {
-					(array + count - 1)->check = false;
-					(array + count)->check = true;
+				else if ((array + (row - 1)*col_num + count)->value <
+					(array + (row - 1)*col_num + count - 1)->value) {
+					(array + (row - 1)*col_num + count)->check = false;
 				}
-				else if ((array + count)->value < (array + count - 1)->value) {
-					(array + count)->check = false;
+			}
+			if (row > 1) {
+				if ((array + (row - 1)*col_num + count)->value >
+					(array + (row - 2)*col_num + count)->value) {
+					(array + (row - 2)*col_num + count)->check = false;
 				}
-				else {
-					(array + count)->check = false;
+				else if ((array + (row - 1)*col_num + count)->value < (array + (row - 2)*col_num + count)->value) {
+					(array + (row - 1)*col_num + count)->check = false;
 				}
 			}
 		}
 	}
 	else {
 		for (int count = 0; count < col_num; count++) {
-			std::cin << (array + ((row - 1) % 3) + count)->value; //只需要3個row的array空間 每次要覆蓋掉
+			input_file >> (array + ((row - 1) % 3)*col_num + count)->value;
+			(array + ((row - 1) % 3)*col_num + count)->check = true;
+			if (count > 0) {
+				if ((array + ((row - 1) % 3)*col_num + count)->value >
+					(array + ((row - 1) % 3)*col_num + count - 1)->value) {
+					(array + ((row - 1) % 3)*col_num + count - 1)->check = false;
+				}
+				else if ((array + ((row - 1) % 3)*col_num + count)->value <
+					(array + ((row - 1) % 3)*col_num + count - 1)->value) {
+					(array + ((row - 1) % 3)*col_num + count)->check = false;
+				}
+			}
+			if ((array + ((row - 1) % 3)*col_num + count)->value >
+				(array + ((row + 1) % 3)*col_num + count)->value)
+				(array + ((row + 1) % 3)*col_num + count)->check = false;
+			else if ((array + ((row - 1) % 3)*col_num + count)->value <
+				(array + ((row + 1) % 3)*col_num + count)->value)
+				(array + ((row - 1) % 3)*col_num + count)->check = false;
 		}
-		switch (count%col_num) {
-		case 0:
-			std::cin << array->value;
-			array->check = true;
-			break;
-		case col_num - 1:
-			std::cin << (array + count)->value;
-			if ((array + count)->value > (array + count - 1)->value
-				&& (array + count - 1)->check = true) {
-				(array + count - 1)->check = false;
-				(array + count)->check = true;
-			}
-			break;
-		default:
-			std::cin << (array + count)->value;
-			if ((array + count)->value > (array + count - 1)->value
-				&& (array + count - 1)->check = true) {
-				(array + count - 1)->check = false;
-				(array + count)->check = true;
-			}
-			else if ((array + count)->value < (array + count - 1)->value) {
-				(array + count)->check = false;
-			}
-			else {
-				(array + count)->check = false;
-			}
-		}
-		return (row%3);
 	}
 }
 
-bool test_case::peaktest(int col,int row) {
-	if((array+row*col_num+col)->value>=)
-	
-
+void testcase::peaktest(int row) {
+	for (int col = 1; col <= col_num; col++) {
+		if ((array + ((row - 1) % 3)*row_num + (col - 1))->check == true)
+			set_peak(row, col);
+	}
 }
 
-void set_peak(int row, int col) {
-
+void testcase::set_peak(int row, int col) {
+	peak temp;
+	temp.row = row;
+	temp.col = col;
+	peak_list.push_back(temp);
 	peak_num++;
 }
