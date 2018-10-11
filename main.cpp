@@ -1,7 +1,7 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
-#include <cstdlib>
+#include <string>
 
 struct value {
 	int x, y, value;
@@ -14,10 +14,11 @@ struct peak {
 
 class testcase {
 public:
-	std::fstream myfile;
+	std::ifstream input_file;
+	std::ofstream output_file;
 	testcase();
-	void getsize(std::fstream & myfile);
-	void store_num(int, std::fstream & myfile);
+	void getsize(std::ifstream & input);
+	void store_num(int, std::ifstream & input);
 	void peaktest(int);
 	int row = 1;
 	int peak_num = 0;
@@ -29,39 +30,41 @@ public:
 
 int main(int argc, char * argv[]) {
 
-	std::fstream myfile("matrix.data", std::ios_base::in);
+	std::ifstream input_file;
+	std::ofstream output_file;
+	input_file.open("matrix1.data");
+	output_file.open("final.peak");
+
 	testcase map;
-	map.getsize(myfile);
-	map.store_num(1, myfile);
+	map.getsize(input_file);
+	map.store_num(1, input_file);
 	for (int countrow = 2; countrow <= map.row_num; countrow++) {
-		map.store_num(countrow,myfile);
+		map.store_num(countrow, input_file);
 		map.peaktest(countrow - 1);
 	}
 	map.peaktest(map.row_num);
-
+	output_file << map.peak_num << '\n';
 	for (int count = 0; count < map.peak_num; count++) {
-		std::cout << map.peak_list[count].row<<" "<<map.peak_list[count].col<<"\n";
+		output_file << map.peak_list[count].row << " " << map.peak_list[count].col << "\n";
 	}
-
-	system("pause");
 	return 0;
 }
 
-testcase::testcase():array(nullptr) {
-	
+testcase::testcase() :array(nullptr) {
+
 }
 
-void testcase::getsize(std::fstream & myfile) {
+void testcase::getsize(std::ifstream & input_file) {
 
 	delete[] array;
-	myfile >> row_num >> col_num;
-	array = new value[3*col_num];
+	input_file >> row_num >> col_num;
+	array = new value[3 * col_num];
 }
 
-void testcase::store_num(int row, std::fstream & myfile) {
+void testcase::store_num(int row, std::ifstream & input_file) {
 	if (row == 1 || row == 2 || row == 3) {
 		for (int count = 0; count < col_num; count++) {
-			myfile >> (array + (row - 1)*col_num + count)->value;
+			input_file >> (array + (row - 1)*col_num + count)->value;
 			(array + (row - 1)*col_num + count)->check = true;
 			if (count > 0) {
 				if ((array + (row - 1)*col_num + count)->value >
@@ -69,7 +72,7 @@ void testcase::store_num(int row, std::fstream & myfile) {
 					(array + (row - 1)*col_num + count - 1)->check = false;
 				}
 				else if ((array + (row - 1)*col_num + count)->value <
-					(array + (row - 1)*col_num + count - 1)->value){
+					(array + (row - 1)*col_num + count - 1)->value) {
 					(array + (row - 1)*col_num + count)->check = false;
 				}
 			}
@@ -78,7 +81,7 @@ void testcase::store_num(int row, std::fstream & myfile) {
 					(array + (row - 2)*col_num + count)->value) {
 					(array + (row - 2)*col_num + count)->check = false;
 				}
-				else if ((array + (row - 1)*col_num + count)->value <(array + (row - 2)*col_num + count)->value) {
+				else if ((array + (row - 1)*col_num + count)->value < (array + (row - 2)*col_num + count)->value) {
 					(array + (row - 1)*col_num + count)->check = false;
 				}
 			}
@@ -86,22 +89,22 @@ void testcase::store_num(int row, std::fstream & myfile) {
 	}
 	else {
 		for (int count = 0; count < col_num; count++) {
-			myfile >> (array + ((row - 1) % 3)*col_num + count)->value;
+			input_file >> (array + ((row - 1) % 3)*col_num + count)->value;
 			(array + ((row - 1) % 3)*col_num + count)->check = true;
 			if (count > 0) {
-				if ((array + ((row - 1) % 3)*col_num + count)->value > 
+				if ((array + ((row - 1) % 3)*col_num + count)->value >
 					(array + ((row - 1) % 3)*col_num + count - 1)->value) {
 					(array + ((row - 1) % 3)*col_num + count - 1)->check = false;
 				}
-				else if ((array + ((row - 1) % 3)*col_num + count)->value < 
+				else if ((array + ((row - 1) % 3)*col_num + count)->value <
 					(array + ((row - 1) % 3)*col_num + count - 1)->value) {
 					(array + ((row - 1) % 3)*col_num + count)->check = false;
 				}
 			}
-			if ((array + ((row - 1) % 3)*col_num + count)->value > 
+			if ((array + ((row - 1) % 3)*col_num + count)->value >
 				(array + ((row + 1) % 3)*col_num + count)->value)
 				(array + ((row + 1) % 3)*col_num + count)->check = false;
-			else if ((array + ((row - 1) % 3)*col_num + count)->value < 
+			else if ((array + ((row - 1) % 3)*col_num + count)->value <
 				(array + ((row + 1) % 3)*col_num + count)->value)
 				(array + ((row - 1) % 3)*col_num + count)->check = false;
 		}
@@ -110,12 +113,12 @@ void testcase::store_num(int row, std::fstream & myfile) {
 
 void testcase::peaktest(int row) {
 	for (int col = 1; col <= col_num; col++) {
-		if ((array + ((row - 1)%3)*row_num + (col - 1))->check == true)
+		if ((array + ((row - 1) % 3)*row_num + (col - 1))->check == true)
 			set_peak(row, col);
 	}
 }
 
-void testcase::set_peak(int row ,int col) {
+void testcase::set_peak(int row, int col) {
 	peak temp;
 	temp.row = row;
 	temp.col = col;
