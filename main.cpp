@@ -1,4 +1,5 @@
 #include <iostream>
+#include <fstream>
 
 typedef struct value {
 	int x, y, value;
@@ -9,119 +10,97 @@ typedef struct peak {
 	int col, row;
 }peak;
 
-class test_case {
+class testcase {
 public:
-	void getsize();
-	void store_num();
-	bool peaktest(int,int);
-	int row = 3, col = 0;
+	void getsize(value*);
+	void store_num(int, value*);
+	void peaktest(int);
+	int row = 1;
 	int peak_num = 0;
-	void set_peak(int,int);
-
-private:
+	void set_peak(int, int);
+	value* array;
+	peak peak_list[10];
 	int row_num, col_num;
-	value array[3][col_num];
-	peal[][]
-
 };
 
-int main() {
-	test_case::getsize();
-	for (int countrow = 3; countrow <= row_num; countrow++) {
-		test_case::store_num();
-		row++;
+int main(int argc, char * argv[]) {
+	std::fstream myfile("matrix.data", std::ios_base::in);
+
+
+	testcase* map;
+	map->getsize(map->array);
+	map->store_num(1, map->array);
+	for (int countrow = 2; countrow <= map->row_num; countrow++) {
+		map->store_num(countrow,map->array);
+		map->peaktest(countrow - 1);
 	}
-	for (int countrow = 1; countrow < row_num- 1; countrow++) {
-		for (int countcol = 1; countcol < row_ num - 1; countcol++) {
-			if ((array + countrow * col_num + countcol)->check!=false){
-				if(test_case::peaktest(countrow, countcol)) {
-					test_case::set_peak(countrow, countcol);
-				}
-			}
-		}
-	}
-	
+	map->peaktest(map->row_num);
+
+
 	return 0;
 }
 
-void test_case::getsize() {
-	std::cin << row_num << col_num;
+void testcase::getsize(value* array) {
+
+	//std::cin >> row_num >> col_num;
+	myfile >> row_num >> col_num;
+	array = new value[row_num*col_num];
 }
 
-void test_case::store_num() {
-	if (row = 3){
-		for (int count = 0; count < 3 * col_num; count++) {
-			switch (count%col_num) {
-			case 0:
-				std::cin << array->value;
-				array->check = true;
-				break;
-			case col_num-1:
-				std::cin << (array+count)->value;
-				if ((array + count)->value > (array + count - 1)->value
-					&& (array + count - 1)->check = true) {
-					(array + count - 1)->check = false;
-					(array + count)->check = true;
+void testcase::store_num(int row, value* array) {
+	if (row == 1 || row == 2 || row == 3) {
+		for (int count = 0; count < col_num; count++) {
+			/*std::cin*/ myfile >> (array + (row - 1)*col_num + count)->value;
+			(array + (row - 1)*col_num + count)->check = true;
+			if (count > 0) {
+				if ((array + (row - 1)*col_num + count)->value >
+					(array + (row - 1)*col_num + count - 1)->value) {
+					(array + (row - 1)*col_num + count - 1)->check = false;
 				}
-				break;
-			default:
-				std::cin << (array + count)->value;
-				if ((array + count)->value > (array + count - 1)->value
-					&& (array + count - 1)->check = true) {
-					(array + count - 1)->check = false;
-					(array + count)->check = true;
+				else if ((array + (row - 1)*col_num + count)->value <(array + (row - 1)*col_num + count - 1)->value){
+					(array + (row - 1)*col_num + count)->check = false;
 				}
-				else if ((array + count)->value < (array + count - 1)->value) {
-					(array + count)->check = false;
+			}
+			if (row > 1) {
+				if ((array + (row - 1)*col_num + count)->value >
+					(array + (row - 2)*col_num + count)->value) {
+					(array + (row - 2)*col_num + count)->check = false;
 				}
-				else {
-					(array + count)->check = false;
+				else if ((array + (row - 1)*col_num + count)->value <(array + (row - 2)*col_num + count)->value) {
+					(array + (row - 1)*col_num + count)->check = false;
 				}
 			}
 		}
 	}
 	else {
 		for (int count = 0; count < col_num; count++) {
-			std::cin << (array + ((row - 1) % 3) + count)->value; //只需要3個row的array空間 每次要覆蓋掉
+			/*std::cin*/myfile >> (array + ((row - 1) % 3) + count)->value;
+			(array + ((row - 1) % 3) + count)->check = true;
+			if (count > 1) {
+				if ((array + ((row - 1) % 3) + count)->value > (array + ((row - 1) % 3) + count - 1)->value) {
+					(array + ((row - 1) % 3) + count - 1)->check = false;
+				}
+				else if ((array + ((row - 1) % 3) + count)->value < (array + ((row - 1) % 3) + count - 1)->value) {
+					(array + ((row - 1) % 3) + count)->check = false;
+				}
+			}
+			if ((array + ((row - 1) % 3) + count)->value > (array + ((row + 1) % 3) + count)->value)
+				(array + ((row + 1) % 3) + count)->check = false;
+			else if ((array + ((row - 1) % 3) + count)->value < (array + ((row + 1) % 3) + count)->value)
+				(array + ((row - 1) % 3) + count)->check = false;
 		}
-		switch (count%col_num) {
-		case 0:
-			std::cin << array->value;
-			array->check = true;
-			break;
-		case col_num - 1:
-			std::cin << (array + count)->value;
-			if ((array + count)->value > (array + count - 1)->value
-				&& (array + count - 1)->check = true) {
-				(array + count - 1)->check = false;
-				(array + count)->check = true;
-			}
-			break;
-		default:
-			std::cin << (array + count)->value;
-			if ((array + count)->value > (array + count - 1)->value
-				&& (array + count - 1)->check = true) {
-				(array + count - 1)->check = false;
-				(array + count)->check = true;
-			}
-			else if ((array + count)->value < (array + count - 1)->value) {
-				(array + count)->check = false;
-			}
-			else {
-				(array + count)->check = false;
-			}
-		}
-		return (row%3);
 	}
 }
 
-bool test_case::peaktest(int col,int row) {
-	if((array+row*col_num+col)->value>=)
-	
-
+void testcase::peaktest(int row) {
+	for (int col = 1; col <= col_num; col++) {
+		if ((array + (row - 1)*row_num + (col - 1))->check == true)
+			set_peak(row, col);
+	}
 }
 
-void set_peak(int row, int col) {
-
+void testcase::set_peak(int row ,int col) {
+	peak_list[peak_num].row = row;
+	peak_list[peak_num].col = col;
 	peak_num++;
 }
