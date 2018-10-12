@@ -1,7 +1,6 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
-#include <cstdlib>
 #include <string>
 
 struct value {
